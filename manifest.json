@@ -1,0 +1,11 @@
+{
+	"id": "places-openrouteservice",
+	"name": "Places - OpenRouteService",
+	"version": "0.0.1",
+	"minAppVersion": "1.13.0",
+	"description": "Routing provider for Places using openrouteservice, with POI search, elevation replacement, directions, isochrones, and track snapping.",
+	"author": "Bob Stanton",
+	"authorUrl": "https://github.com/bobstanton",
+	"fundingUrl": "https://ko-fi.com/bobsoftware",
+	"isDesktopOnly": false
+}
