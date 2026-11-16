@@ -1,9 +1,5 @@
 import { type IPlaceExtensionSettings } from "places-shared/settings";
-import {
-  executeRateLimited,
-  formatProviderApiError,
-  tryParseProviderErrorJson,
-} from "places-shared/services";
+import { executeRateLimited, formatProviderApiError, tryParseProviderErrorJson } from "places-shared/services";
 import { loggedRequestUrl as requestUrl } from "places-shared/utils";
 import { DEFAULT_ORS_BASE_URL } from "./main";
 import { orsRateLimits } from "./OrsRateLimits";

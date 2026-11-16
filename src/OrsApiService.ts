@@ -21,6 +21,7 @@ export class OrsApiService implements IPlacesService {
       search: (searchText, proximity) => this.executeSearch(searchText, proximity),
       geocodeLocation: async (location) => {
         const bounds = await this.geocodeLocationBounds(location);
+
         return bounds ? { bounds } : null;
       },
       searchInBounds: (searchText, bounds) => this.lookupPlaceInBounds(searchText, bounds),
@@ -37,15 +38,17 @@ export class OrsApiService implements IPlacesService {
       const features = await this.geocode("/geocode/search", {
         text: query.trim(),
         size: "10",
-        layers: "venue",
+        layers: "venue,address",
         "boundary.rect.min_lat": String(bounds.minLat),
         "boundary.rect.min_lon": String(bounds.minLng),
         "boundary.rect.max_lat": String(bounds.maxLat),
         "boundary.rect.max_lon": String(bounds.maxLng),
       });
+
       return features.map((feature) => this.convertToPlace(feature)).filter((p): p is Place => p !== null);
     } catch (error) {
       logger.scope("Places").error("[openrouteservice] lookupPlaceInBounds error:", error);
+
       throw error;
     }
   }
@@ -57,9 +60,11 @@ export class OrsApiService implements IPlacesService {
         "point.lon": String(coordinate.longitude),
         size: "5",
       });
+
       return features.map((feature) => this.convertToPlace(feature)).filter((p): p is Place => p !== null);
     } catch (error) {
       logger.scope("Places").error("[openrouteservice] reverse geocode error:", error);
+
       throw error;
     }
   }
@@ -72,6 +77,7 @@ export class OrsApiService implements IPlacesService {
     });
 
     const feature = features[0];
+
     if (!feature) return null;
 
     return peliasFeatureBounds(feature);
@@ -81,10 +87,11 @@ export class OrsApiService implements IPlacesService {
     const features = await this.geocode("/geocode/search", {
       text: searchText,
       size: "10",
-      layers: "venue",
+      layers: "venue,address",
       ...(this.extensionSettings.country ? { "boundary.country": this.extensionSettings.country.toUpperCase() } : {}),
       ...(proximityBias ? { "focus.point.lat": String(proximityBias.latitude), "focus.point.lon": String(proximityBias.longitude) } : {}),
     });
+
     return features.map((feature) => this.convertToPlace(feature)).filter((p): p is Place => p !== null);
   }
 
@@ -103,6 +110,7 @@ export class OrsApiService implements IPlacesService {
     }
 
     const features = (response.json as { features?: PeliasFeature[] }).features;
+
     return Array.isArray(features) ? features : [];
   }
 

@@ -1,8 +1,8 @@
 import { App, Plugin } from "obsidian";
 import { IPlaceExtensionSettings, IPlacesExtensionHostSettings } from "places-shared/settings";
-import { IPlacePluginExtension, IPlacePluginExtensionExports, registerPlaceExtensionLifecycle, settingsOnlyExports, PLACES_EXTENSION_API_VERSION, type ExtensionSettingsGroup } from "places-shared/services";
-import { scalarToString, Utilities , configureRequestLogging } from "places-shared/utils";
-import { apiKeySettingItem, countrySettingItem } from "places-shared/ui";
+import { IPlacePluginExtension, IPlacePluginExtensionExports, registerPlaceExtensionLifecycle, settingsOnlyExports, PLACES_EXTENSION_API_VERSION, type ExtensionSettingsGroup } from "places-shared/obsidian/services";
+import { scalarToString, Utilities, configureRequestLogging } from "places-shared/utils";
+import { apiKeySettingItem, countrySettingItem, settingsPageStatus } from "places-shared/obsidian/ui";
 import { OrsApiService } from "./OrsApiService";
 import { PROVIDER_ICON } from "./provider-icon";
 import { OrsElevationService } from "./OrsElevationService";
@@ -16,7 +16,6 @@ const DEFAULT_SETTINGS: IPlaceExtensionSettings = {
 };
 
 export default class OpenRouteServicePlugin extends Plugin implements IPlacePluginExtension {
-
   onload() {
     registerPlaceExtensionLifecycle(this);
   }
@@ -50,18 +49,20 @@ export default class OpenRouteServicePlugin extends Plugin implements IPlacePlug
   private settingsGroup(settings: IPlaceExtensionSettings): ExtensionSettingsGroup {
     return {
       heading: "openrouteservice",
+      ...settingsPageStatus(() => Boolean(settings.apiKey?.trim())),
+      reloadOn: ["apiKey"],
       items: [
         apiKeySettingItem("openrouteservice", "API key from openrouteservice.org (free tier available)"),
         {
           name: "Base URL",
-          desc: `API endpoint. Change this to use a self-hosted openrouteservice instance. Default: ${DEFAULT_ORS_BASE_URL}`,
+          desc: "openrouteservice API endpoint. Change it to use a self-hosted service.",
           control: { type: "text", key: "baseUrl", defaultValue: DEFAULT_ORS_BASE_URL },
         },
         countrySettingItem(),
       ],
       setValue: (key, value) => {
-        // Fall back to the public instance on a cleared base URL.
         const text = scalarToString(value);
+
         settings[key] = key === "baseUrl" ? text || DEFAULT_ORS_BASE_URL : text;
       },
     };
